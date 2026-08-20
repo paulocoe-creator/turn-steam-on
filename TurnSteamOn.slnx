@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="TurnSteamOn.Tests/TurnSteamOn.Tests.csproj" />
+  <Project Path="TurnSteamOn/TurnSteamOn.csproj" />
+</Solution>
