@@ -7,10 +7,21 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
+    <ApplicationIcon>Assets\favicon.ico</ApplicationIcon>
+    <Product>Turn Steam On</Product>
+    <Company>Paulo Coelho</Company>
+    <Description>Starts Steam when a PS5 DualSense controller connects over Bluetooth.</Description>
+    <Version>1.0.0</Version>
+    <FileVersion>1.0.0.0</FileVersion>
+    <InformationalVersion>1.0.0</InformationalVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.Windows.SDK.NET.Ref" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Assets\favicon.ico" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>
