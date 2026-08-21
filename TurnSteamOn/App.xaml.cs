@@ -1,5 +1,6 @@
 ﻿using System.Drawing;
 using Forms = System.Windows.Forms;
+using TurnSteamOn.Core;
 using TurnSteamOn.Platform;
 
 namespace TurnSteamOn;
@@ -11,6 +12,7 @@ public partial class App : System.Windows.Application
 {
 	private Forms.NotifyIcon? _trayIcon;
 	private WindowsDualSenseConnectionMonitor? _controllerMonitor;
+	private SteamStartupCoordinator? _steamCoordinator;
 
 	protected override void OnStartup(System.Windows.StartupEventArgs e)
 	{
@@ -32,10 +34,12 @@ public partial class App : System.Windows.Application
 		};
 
 		_controllerMonitor = new WindowsDualSenseConnectionMonitor();
+		_steamCoordinator = new SteamStartupCoordinator(new WindowsSteamProcess());
 		_controllerMonitor.DualSenseConnected += (_, _) =>
 		{
 			TemporaryLogger.Log("DualSenseConnected event received by the application.");
-			Dispatcher.BeginInvoke(() => statusItem.Text = "DualSense connected");
+			_ = Dispatcher.BeginInvoke(() => statusItem.Text = "DualSense connected");
+			_ = LaunchSteamAsync(statusItem);
 		};
 
 		try
@@ -45,7 +49,23 @@ public partial class App : System.Windows.Application
 		catch (Exception exception)
 		{
 			TemporaryLogger.Error("Unable to start the Bluetooth monitor.", exception);
-			Dispatcher.BeginInvoke(() => statusItem.Text = "Bluetooth monitor failed");
+			_ = Dispatcher.BeginInvoke(() => statusItem.Text = "Bluetooth monitor failed");
+		}
+	}
+
+	private async Task LaunchSteamAsync(ToolStripItem statusItem)
+	{
+		try
+		{
+			if (await _steamCoordinator!.HandleDualSenseConnectedAsync())
+			{
+				_ = Dispatcher.BeginInvoke(() => statusItem.Text = "Steam launch requested");
+			}
+		}
+		catch (Exception exception)
+		{
+			TemporaryLogger.Error("Unable to start Steam.", exception);
+			_ = Dispatcher.BeginInvoke(() => statusItem.Text = "Steam launch failed");
 		}
 	}
 

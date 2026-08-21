@@ -28,6 +28,24 @@ public sealed class SteamStartupCoordinatorTests
         Assert.Equal(1, steam.LaunchCount);
     }
 
+    [Fact]
+    public async Task LaunchesSteamOnlyOnceForConcurrentConnectionEvents()
+    {
+        var steam = new BlockingFakeSteamProcess();
+        var coordinator = new SteamStartupCoordinator(steam);
+
+        var firstLaunch = coordinator.HandleDualSenseConnectedAsync();
+        await steam.LaunchStarted.Task;
+        var secondLaunch = coordinator.HandleDualSenseConnectedAsync();
+
+        steam.AllowLaunches.SetResult();
+
+        var results = await Task.WhenAll(firstLaunch, secondLaunch);
+
+        Assert.Equal(1, results.Count(result => result));
+        Assert.Equal(1, steam.LaunchCount);
+    }
+
     private sealed class FakeSteamProcess : ISteamProcess
     {
         private readonly bool _isRunning;
@@ -45,6 +63,22 @@ public sealed class SteamStartupCoordinatorTests
         {
             LaunchCount++;
             return Task.CompletedTask;
+        }
+    }
+
+    private sealed class BlockingFakeSteamProcess : ISteamProcess
+    {
+        public TaskCompletionSource LaunchStarted { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        public TaskCompletionSource AllowLaunches { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        public int LaunchCount { get; private set; }
+
+        public bool IsRunning() => LaunchCount > 0;
+
+        public async Task LaunchAsync(CancellationToken cancellationToken)
+        {
+            LaunchCount++;
+            LaunchStarted.TrySetResult();
+            await AllowLaunches.Task.WaitAsync(cancellationToken);
         }
     }
 }
