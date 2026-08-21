@@ -15,7 +15,8 @@ public partial class App : System.Windows.Application
 	private WindowsDualSenseConnectionMonitor? _controllerMonitor;
 	private SteamStartupCoordinator? _steamCoordinator;
 	private SingleInstanceGuard? _singleInstanceGuard;
-	private WindowsStartupManager? _startupManager;
+	private IStartupToggle? _startupManager;
+	private TrayMenuController? _trayMenu;
 
 	protected override void OnStartup(System.Windows.StartupEventArgs e)
 	{
@@ -29,36 +30,18 @@ public partial class App : System.Windows.Application
 			return;
 		}
 
-		var menu = new Forms.ContextMenuStrip();
-		var statusItem = menu.Items.Add("Waiting for DualSense", null, null);
-		statusItem.Enabled = false;
-		var startupItem = new Forms.ToolStripMenuItem("Run at Windows startup");
-		menu.Items.Add(new Forms.ToolStripSeparator());
-		menu.Items.Add(startupItem);
-		menu.Items.Add("Exit", null, (_, _) => Shutdown());
-
 		try
 		{
 			_startupManager = new WindowsStartupManager();
-			startupItem.Checked = _startupManager.IsEnabled;
-			startupItem.CheckedChanged += (_, _) =>
-			{
-				try
-				{
-					_startupManager.SetEnabled(startupItem.Checked);
-				}
-				catch (Exception exception)
-				{
-					TemporaryLogger.Error("Unable to update Windows startup setting.", exception);
-					startupItem.Checked = !startupItem.Checked;
-				}
-			};
 		}
 		catch (Exception exception)
 		{
 			TemporaryLogger.Error("Unable to read Windows startup setting.", exception);
-			startupItem.Enabled = false;
+			_startupManager = new DisabledStartupToggle();
 		}
+
+		_trayMenu = new TrayMenuController(_startupManager, OpenLog, Shutdown);
+		var menu = _trayMenu.CreateMenu();
 
 		_trayIcon = new Forms.NotifyIcon
 		{
@@ -73,8 +56,8 @@ public partial class App : System.Windows.Application
 		_controllerMonitor.DualSenseConnected += (_, _) =>
 		{
 			TemporaryLogger.Log("DualSenseConnected event received by the application.");
-			_ = Dispatcher.BeginInvoke(() => statusItem.Text = "DualSense connected");
-			_ = LaunchSteamAsync(statusItem);
+			_ = Dispatcher.BeginInvoke(() => _trayMenu.SetStatus("DualSense connected"));
+			_ = LaunchSteamAsync();
 		};
 
 		try
@@ -84,32 +67,52 @@ public partial class App : System.Windows.Application
 		catch (Exception exception)
 		{
 			TemporaryLogger.Error("Unable to start the Bluetooth monitor.", exception);
-			_ = Dispatcher.BeginInvoke(() => statusItem.Text = "Bluetooth monitor failed");
+			_ = Dispatcher.BeginInvoke(() => _trayMenu.SetStatus("Bluetooth monitor failed"));
 		}
 	}
 
-	private async Task LaunchSteamAsync(ToolStripItem statusItem)
+	private async Task LaunchSteamAsync()
 	{
 		try
 		{
 			if (await _steamCoordinator!.HandleDualSenseConnectedAsync())
 			{
-				_ = Dispatcher.BeginInvoke(() => statusItem.Text = "Steam launch requested");
+				_ = Dispatcher.BeginInvoke(() => _trayMenu!.SetStatus("Steam launch requested"));
 			}
 		}
 		catch (Exception exception)
 		{
 			TemporaryLogger.Error("Unable to start Steam.", exception);
-			_ = Dispatcher.BeginInvoke(() => statusItem.Text = "Steam launch failed");
+			_ = Dispatcher.BeginInvoke(() => _trayMenu!.SetStatus("Steam launch failed"));
 		}
+	}
+
+	private static void OpenLog()
+	{
+		System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+		{
+			FileName = TemporaryLogger.FilePath,
+			UseShellExecute = true
+		});
 	}
 
 	protected override void OnExit(System.Windows.ExitEventArgs e)
 	{
 		_controllerMonitor?.Dispose();
+		_trayMenu?.Dispose();
 		_trayIcon?.Dispose();
 		_singleInstanceGuard?.Dispose();
 		base.OnExit(e);
+	}
+
+	private sealed class DisabledStartupToggle : IStartupToggle
+	{
+		public bool IsEnabled => false;
+
+		public void SetEnabled(bool enabled)
+		{
+			throw new InvalidOperationException("Windows startup configuration is unavailable.");
+		}
 	}
 }
 
