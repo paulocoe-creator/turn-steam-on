@@ -56,6 +56,7 @@ The application has no database and no required network service.
 Current persistent interactions are:
 
 - `%LOCALAPPDATA%\TurnSteamOn\turn-steam-on.log` for diagnostics;
+- `%LOCALAPPDATA%\TurnSteamOn\preferences.json` for versioned device selections and theme preferences;
 - `HKCU\Software\Microsoft\Windows\CurrentVersion\Run` for the opt-in startup entry; and
 - Valve registry keys plus conventional Program Files locations for read-only Steam discovery.
 
