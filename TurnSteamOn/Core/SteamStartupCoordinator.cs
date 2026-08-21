@@ -3,6 +3,7 @@ namespace TurnSteamOn.Core;
 public sealed class SteamStartupCoordinator
 {
     private readonly ISteamProcess _steamProcess;
+    private readonly SemaphoreSlim _launchGate = new(1, 1);
 
     public SteamStartupCoordinator(ISteamProcess steamProcess)
     {
@@ -11,12 +12,21 @@ public sealed class SteamStartupCoordinator
 
     public async Task<bool> HandleDualSenseConnectedAsync(CancellationToken cancellationToken = default)
     {
-        if (_steamProcess.IsRunning())
-        {
-            return false;
-        }
+        await _launchGate.WaitAsync(cancellationToken);
 
-        await _steamProcess.LaunchAsync(cancellationToken);
-        return true;
+        try
+        {
+            if (_steamProcess.IsRunning())
+            {
+                return false;
+            }
+
+            await _steamProcess.LaunchAsync(cancellationToken);
+            return true;
+        }
+        finally
+        {
+            _launchGate.Release();
+        }
     }
 }
