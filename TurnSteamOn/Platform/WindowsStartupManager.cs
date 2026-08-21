@@ -11,7 +11,14 @@ public interface IStartupEntryStore
     void DeleteValue(string name);
 }
 
-public sealed class WindowsStartupManager
+public interface IStartupToggle
+{
+    bool IsEnabled { get; }
+
+    void SetEnabled(bool enabled);
+}
+
+public sealed class WindowsStartupManager : IStartupToggle
 {
     private const string RunKeyPath = @"Software\Microsoft\Windows\CurrentVersion\Run";
     private const string EntryName = "TurnSteamOn";
