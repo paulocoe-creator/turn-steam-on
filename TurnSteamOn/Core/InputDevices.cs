@@ -74,6 +74,21 @@ public sealed class DeviceConnectionChanged : EventArgs
         && CurrentState == DeviceConnectionState.Connected;
 }
 
+public sealed class InputDeviceChanged : EventArgs
+{
+    public InputDeviceChanged(InputDevice device, InputDevice? previousDevice)
+    {
+        ArgumentNullException.ThrowIfNull(device);
+
+        Device = device;
+        PreviousDevice = previousDevice;
+    }
+
+    public InputDevice Device { get; }
+
+    public InputDevice? PreviousDevice { get; }
+}
+
 public sealed record DeviceSelection
 {
     public DeviceSelection(string stableId, bool enabled, string lastKnownName)
@@ -100,4 +115,11 @@ public interface IInputDeviceConnectionMonitor
     void Start();
 
     void Stop();
+}
+
+public interface IInputDeviceCatalog
+{
+    event EventHandler<InputDeviceChanged>? DeviceChanged;
+
+    IReadOnlyList<InputDevice> GetDevices();
 }
