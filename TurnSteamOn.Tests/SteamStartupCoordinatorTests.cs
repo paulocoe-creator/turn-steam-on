@@ -10,7 +10,7 @@ public sealed class SteamStartupCoordinatorTests
         var steam = new FakeSteamProcess(isRunning: true);
         var coordinator = new SteamStartupCoordinator(steam);
 
-        var launched = await coordinator.HandleDualSenseConnectedAsync();
+        var launched = await coordinator.HandleDeviceConnectedAsync();
 
         Assert.False(launched);
         Assert.Equal(0, steam.LaunchCount);
@@ -22,7 +22,7 @@ public sealed class SteamStartupCoordinatorTests
         var steam = new FakeSteamProcess(isRunning: false);
         var coordinator = new SteamStartupCoordinator(steam);
 
-        var launched = await coordinator.HandleDualSenseConnectedAsync();
+        var launched = await coordinator.HandleDeviceConnectedAsync();
 
         Assert.True(launched);
         Assert.Equal(1, steam.LaunchCount);
@@ -34,9 +34,9 @@ public sealed class SteamStartupCoordinatorTests
         var steam = new BlockingFakeSteamProcess();
         var coordinator = new SteamStartupCoordinator(steam);
 
-        var firstLaunch = coordinator.HandleDualSenseConnectedAsync();
+        var firstLaunch = coordinator.HandleDeviceConnectedAsync();
         await steam.LaunchStarted.Task;
-        var secondLaunch = coordinator.HandleDualSenseConnectedAsync();
+        var secondLaunch = coordinator.HandleDeviceConnectedAsync();
 
         steam.AllowLaunches.SetResult();
 

@@ -76,7 +76,7 @@ public partial class App : System.Windows.Application
 	{
 		try
 		{
-			if (await _steamCoordinator!.HandleDualSenseConnectedAsync())
+			if (await _steamCoordinator!.HandleDeviceConnectedAsync())
 			{
 				_ = Dispatcher.BeginInvoke(() => _trayMenu!.SetStatus("Steam launch requested"));
 			}

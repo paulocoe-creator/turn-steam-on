@@ -10,7 +10,7 @@ public sealed class SteamStartupCoordinator
         _steamProcess = steamProcess;
     }
 
-    public async Task<bool> HandleDualSenseConnectedAsync(CancellationToken cancellationToken = default)
+    public async Task<bool> HandleDeviceConnectedAsync(CancellationToken cancellationToken = default)
     {
         await _launchGate.WaitAsync(cancellationToken);
 
