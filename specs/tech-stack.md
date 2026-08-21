@@ -31,6 +31,7 @@ There is no required main window. The tray icon is the primary user interface.
 `TurnSteamOn/Core` contains focused decision logic and narrow contracts:
 
 - DualSense identity and connection matching;
+- generic input-device catalog state and connection transitions;
 - single-instance coordination;
 - Steam startup serialization and decision-making; and
 - controller-monitor and Steam-process abstractions.
@@ -41,7 +42,7 @@ Core decision logic should remain directly testable. Windows API types may appea
 
 `TurnSteamOn/Platform` contains Windows-facing implementations:
 
-- Bluetooth device watching;
+- Bluetooth Classic and Low Energy device watching and property mapping;
 - tray menu construction;
 - Windows startup registry access;
 - Steam path resolution and process launch; and
@@ -87,6 +88,7 @@ Behavior changes should be developed with focused automated tests. Tests should 
 The established test suite covers:
 
 - supported device identity and transport;
+- generic input-device catalog state and Bluetooth property mapping;
 - Steam-running and Steam-not-running decisions;
 - concurrent connection events;
 - single-instance acquisition;
