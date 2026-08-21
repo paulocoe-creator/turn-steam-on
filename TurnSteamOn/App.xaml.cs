@@ -10,14 +10,23 @@ namespace TurnSteamOn;
 /// </summary>
 public partial class App : System.Windows.Application
 {
+	private const string SingleInstanceName = "TurnSteamOn.App";
 	private Forms.NotifyIcon? _trayIcon;
 	private WindowsDualSenseConnectionMonitor? _controllerMonitor;
 	private SteamStartupCoordinator? _steamCoordinator;
+	private SingleInstanceGuard? _singleInstanceGuard;
 
 	protected override void OnStartup(System.Windows.StartupEventArgs e)
 	{
 		base.OnStartup(e);
 		ShutdownMode = System.Windows.ShutdownMode.OnExplicitShutdown;
+
+		_singleInstanceGuard = SingleInstanceGuard.TryAcquire(SingleInstanceName);
+		if (_singleInstanceGuard is null)
+		{
+			Shutdown();
+			return;
+		}
 
 		var menu = new Forms.ContextMenuStrip();
 		var statusItem = menu.Items.Add("Waiting for DualSense", null, null);
@@ -73,6 +82,7 @@ public partial class App : System.Windows.Application
 	{
 		_controllerMonitor?.Dispose();
 		_trayIcon?.Dispose();
+		_singleInstanceGuard?.Dispose();
 		base.OnExit(e);
 	}
 }
