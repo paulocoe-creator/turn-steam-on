@@ -16,7 +16,7 @@ public sealed class TrayMenuController : IDisposable
         _exit = exit;
     }
 
-    public string StatusText => _statusItem?.Text ?? "Waiting for DualSense";
+    public string StatusText => _statusItem?.Text ?? "Waiting for selected controller";
 
     public ContextMenuStrip CreateMenu()
     {

@@ -18,7 +18,7 @@ public sealed class TrayMenuControllerTests
 
         using var menu = controller.CreateMenu();
 
-        Assert.Equal("Waiting for DualSense", controller.StatusText);
+        Assert.Equal("Waiting for selected controller", controller.StatusText);
         Assert.NotNull(menu.Items["startup"]);
         Assert.NotNull(menu.Items["open-log"]);
         Assert.NotNull(menu.Items["exit"]);

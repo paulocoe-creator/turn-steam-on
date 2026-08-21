@@ -1,6 +1,6 @@
 # Turn Steam On
 
-A Windows background utility that will start Steam when a PlayStation 5 DualSense controller connects over Bluetooth.
+A Windows background utility that starts Steam when a supported, selected game controller connects over Bluetooth.
 
 ## Requirements
 
@@ -14,11 +14,13 @@ dotnet build TurnSteamOn.slnx
 dotnet test TurnSteamOn.Tests/TurnSteamOn.Tests.csproj
 ```
 
-The application starts as a tray-only background utility, monitors Bluetooth DualSense connections, and starts Steam when it is not already running.
+The application starts as a tray-only background utility, monitors paired Bluetooth game controllers, and starts Steam when a selected controller connects and Steam is not already running.
 
 ## Manual Bluetooth test
 
-Run the app with `dotnet run --project TurnSteamOn`. Pair the controller in Windows Bluetooth settings while holding **PS + Create**, then disconnect and reconnect it. The tray status should change to `DualSense connected`.
+Run the app with `dotnet run --project TurnSteamOn`, then disconnect and reconnect a paired Bluetooth game controller. Device discovery and trigger decisions are written to `%LOCALAPPDATA%\TurnSteamOn\turn-steam-on.log`.
+
+Until the settings UI is available, no controller is selected implicitly, so an installation with no saved selections will monitor devices without launching Steam.
 
 Temporary diagnostics are written to `%LOCALAPPDATA%\TurnSteamOn\turn-steam-on.log`.
 

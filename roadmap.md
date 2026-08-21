@@ -3,8 +3,10 @@
 ## Implemented
 
 - Windows background utility with a system tray presence.
-- Bluetooth monitoring for PlayStation 5 DualSense controllers.
-- DualSense identification using Windows device information, Bluetooth transport, device names, and Sony identifiers when available.
+- Generic Bluetooth Classic and Low Energy game-controller discovery using Windows device evidence.
+- Stable controller models carrying connection state, transport, vendor, product, and support status.
+- Versioned preferences for selected devices and application theme.
+- Preference-aware trigger policy and background orchestration for selected controllers.
 - Reconnect handling and duplicate connection-event protection.
 - Steam installation discovery through Windows registry locations and common installation paths.
 - Steam process detection and launch when Steam is not already running.
@@ -40,7 +42,7 @@
 
 ## Device Selection UI
 
-The long-term goal is to let users choose which connected devices can trigger Steam instead of limiting the behavior to one hard-coded DualSense model.
+The goal is to let users choose which connected devices can trigger Steam.
 
 ### Device Configuration
 
@@ -62,11 +64,8 @@ The long-term goal is to let users choose which connected devices can trigger St
 
 ### Architecture
 
-- Replace the single `DualSenseConnected` event with a device connection event carrying a device model.
-- Introduce a device catalog service separate from the Windows device watcher.
-- Introduce a preferences store for selected device identifiers and user options.
 - Keep device enumeration, selection policy, persistence, and UI behind separate interfaces so each part remains testable.
-- Preserve the current default behavior by selecting the known DualSense device on first use when no preferences exist.
+- Open settings on first use when no device selections exist; do not create an implicit controller selection.
 
 ## Future Features
 
