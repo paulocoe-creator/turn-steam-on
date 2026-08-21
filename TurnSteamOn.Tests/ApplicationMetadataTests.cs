@@ -13,7 +13,7 @@ public sealed class ApplicationMetadataTests
         Assert.Equal("Turn Steam On", ApplicationAssembly.GetCustomAttribute<AssemblyProductAttribute>()?.Product);
         Assert.Equal("Paulo Coelho", ApplicationAssembly.GetCustomAttribute<AssemblyCompanyAttribute>()?.Company);
         Assert.Equal(
-            "Starts Steam when a PS5 DualSense controller connects over Bluetooth.",
+            "Starts Steam when a selected game controller connects over Bluetooth.",
             ApplicationAssembly.GetCustomAttribute<AssemblyDescriptionAttribute>()?.Description);
     }
 

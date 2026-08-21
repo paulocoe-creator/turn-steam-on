@@ -30,11 +30,10 @@ There is no required main window. The tray icon is the primary user interface.
 
 `TurnSteamOn/Core` contains focused decision logic and narrow contracts:
 
-- DualSense identity and connection matching;
-- generic input-device catalog state and connection transitions;
+- generic input-device catalog state, selection policy, and connection transitions;
 - single-instance coordination;
 - Steam startup serialization and decision-making; and
-- controller-monitor and Steam-process abstractions.
+- input-device monitor, preferences-store, and Steam-process abstractions.
 
 Core decision logic should remain directly testable. Windows API types may appear where the current device event boundary requires them, but operating-system side effects belong in platform implementations.
 

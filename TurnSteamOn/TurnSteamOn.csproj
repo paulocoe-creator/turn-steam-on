@@ -10,7 +10,7 @@
     <ApplicationIcon>Assets\favicon.ico</ApplicationIcon>
     <Product>Turn Steam On</Product>
     <Company>Paulo Coelho</Company>
-    <Description>Starts Steam when a PS5 DualSense controller connects over Bluetooth.</Description>
+    <Description>Starts Steam when a selected game controller connects over Bluetooth.</Description>
     <Version>1.0.0</Version>
     <FileVersion>1.0.0.0</FileVersion>
     <InformationalVersion>1.0.0</InformationalVersion>

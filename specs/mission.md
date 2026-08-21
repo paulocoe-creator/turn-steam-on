@@ -2,13 +2,13 @@
 
 ## Purpose
 
-Turn Steam On is a small Windows background utility that starts Steam when a supported PlayStation 5 DualSense controller connects over Bluetooth.
+Turn Steam On is a small Windows background utility that starts Steam when a supported, user-selected game controller connects over Bluetooth.
 
 Its purpose is to remove a repetitive step from the start of a PC gaming session while remaining quiet, predictable, and under the user's control.
 
 ## Core Promise
 
-When a qualifying DualSense Bluetooth connection is detected:
+When a qualifying selected Bluetooth controller connection is detected:
 
 1. Determine whether Steam is already running.
 2. Start Steam only when it is not running.
@@ -20,7 +20,7 @@ Repeated or concurrent Windows device notifications must not cause duplicate Ste
 
 ### Precise triggering
 
-Identify supported controllers using stable device evidence, including Bluetooth transport and known Sony vendor and product identifiers. A generic controller name alone is not sufficient when stronger device information is available.
+Identify supported controllers using stable Windows device evidence, including Bluetooth transport, gaming categories, device-class information, and Bluetooth Low Energy appearance. A controller name alone is not sufficient support evidence.
 
 ### Quiet background operation
 
@@ -44,14 +44,14 @@ Failures in device monitoring, Steam discovery, or process launch should be visi
 
 ### Focused scope
 
-Turn Steam On automates the transition from a supported controller connection to Steam startup. It does not replace Windows Bluetooth pairing, manage Steam itself, or treat every connected input device as a launch trigger.
+Turn Steam On automates the transition from a selected, supported controller connection to Steam startup. It does not replace Windows Bluetooth pairing, manage Steam itself, or treat every connected input device as a launch trigger.
 
 ## Success Criteria
 
 The product fulfills its mission when it:
 
 - runs as a single tray application on supported Windows systems;
-- detects qualifying Bluetooth DualSense connection transitions;
+- detects qualifying selected Bluetooth controller connection transitions;
 - avoids false triggers from unrelated or USB devices;
 - launches Steam at most once when needed;
 - remains inactive when Steam is already running;

@@ -13,13 +13,13 @@ public partial class App : System.Windows.Application
 {
 	private const string SingleInstanceName = "TurnSteamOn.App";
 	private Forms.NotifyIcon? _trayIcon;
-	private WindowsDualSenseConnectionMonitor? _controllerMonitor;
-	private SteamStartupCoordinator? _steamCoordinator;
+	private WindowsBluetoothDeviceCatalog? _deviceCatalog;
+	private DeviceTriggerOrchestrator? _deviceTriggerOrchestrator;
 	private SingleInstanceGuard? _singleInstanceGuard;
 	private IStartupToggle? _startupManager;
 	private TrayMenuController? _trayMenu;
 
-	protected override void OnStartup(System.Windows.StartupEventArgs e)
+	protected override async void OnStartup(System.Windows.StartupEventArgs e)
 	{
 		base.OnStartup(e);
 		ShutdownMode = System.Windows.ShutdownMode.OnExplicitShutdown;
@@ -52,40 +52,48 @@ public partial class App : System.Windows.Application
 			Visible = true
 		};
 
-		_controllerMonitor = new WindowsDualSenseConnectionMonitor();
-		_steamCoordinator = new SteamStartupCoordinator(new WindowsSteamProcess());
-		_controllerMonitor.DualSenseConnected += (_, _) =>
-		{
-			TemporaryLogger.Log("DualSenseConnected event received by the application.");
-			_ = Dispatcher.BeginInvoke(() => _trayMenu.SetStatus("DualSense connected"));
-			_ = LaunchSteamAsync();
-		};
+		_deviceCatalog = new WindowsBluetoothDeviceCatalog();
+		_deviceTriggerOrchestrator = new DeviceTriggerOrchestrator(
+			_deviceCatalog,
+			new JsonDevicePreferencesStore(),
+			new DeviceTriggerPolicy(),
+			new SteamStartupCoordinator(new WindowsSteamProcess()));
+		_deviceTriggerOrchestrator.TriggerProcessed += OnTriggerProcessed;
+		_deviceTriggerOrchestrator.TriggerFailed += OnTriggerFailed;
 
 		try
 		{
-			_controllerMonitor.Start();
+			await _deviceTriggerOrchestrator.StartAsync();
 		}
 		catch (Exception exception)
 		{
-			TemporaryLogger.Error("Unable to start the Bluetooth monitor.", exception);
-			_ = Dispatcher.BeginInvoke(() => _trayMenu.SetStatus("Bluetooth monitor failed"));
+			TemporaryLogger.Error("Unable to start device trigger monitoring.", exception);
+			_ = Dispatcher.BeginInvoke(() => _trayMenu.SetStatus("Monitoring failed"));
 		}
 	}
 
-	private async Task LaunchSteamAsync()
+	private void OnTriggerProcessed(object? sender, DeviceTriggerProcessed result)
 	{
-		try
+		TemporaryLogger.Log(
+			$"Device trigger evaluated: id='{result.Change.Device.StableId}', "
+			+ $"name='{result.Change.Device.FriendlyName}', decision='{result.Decision}', "
+			+ $"steamLaunchRequested='{result.SteamLaunchRequested}'.");
+
+		if (result.Decision == DeviceTriggerDecision.Eligible)
 		{
-			if (await _steamCoordinator!.HandleDeviceConnectedAsync())
-			{
-				_ = Dispatcher.BeginInvoke(() => _trayMenu!.SetStatus("Steam launch requested"));
-			}
+			var status = result.SteamLaunchRequested
+				? "Steam launch requested"
+				: "Steam already running";
+			_ = Dispatcher.BeginInvoke(() => _trayMenu!.SetStatus(status));
 		}
-		catch (Exception exception)
-		{
-			TemporaryLogger.Error("Unable to start Steam.", exception);
-			_ = Dispatcher.BeginInvoke(() => _trayMenu!.SetStatus("Steam launch failed"));
-		}
+	}
+
+	private void OnTriggerFailed(object? sender, DeviceTriggerFailed failure)
+	{
+		TemporaryLogger.Error(
+			$"Unable to handle device trigger '{failure.Change.Device.StableId}'.",
+			failure.Exception);
+		_ = Dispatcher.BeginInvoke(() => _trayMenu!.SetStatus("Steam launch failed"));
 	}
 
 	private static void OpenLog()
@@ -99,7 +107,8 @@ public partial class App : System.Windows.Application
 
 	protected override void OnExit(System.Windows.ExitEventArgs e)
 	{
-		_controllerMonitor?.Dispose();
+		_deviceTriggerOrchestrator?.Dispose();
+		_deviceCatalog?.Dispose();
 		_trayMenu?.Dispose();
 		_trayIcon?.Dispose();
 		_singleInstanceGuard?.Dispose();
