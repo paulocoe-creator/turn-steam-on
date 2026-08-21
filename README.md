@@ -32,6 +32,8 @@ Install Inno Setup and make `iscc.exe` available on `PATH`, then run:
 
 The script publishes a self-contained `win-x64` build, creates a Start menu shortcut named `Turn Steam On`, and registers the normal Windows uninstaller. The installer does not enable Windows startup automatically; that remains controlled by the tray menu setting.
 
+Every push to `main` also runs the tests and builds a GitHub Release containing the versioned `TurnSteamOn-Setup-*.exe` installer. Users can download it from the repository's Releases page without cloning the project.
+
 ## Future improvements
 
 Planned features include:
