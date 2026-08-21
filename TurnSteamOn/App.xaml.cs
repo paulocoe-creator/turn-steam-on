@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using System.IO;
 using Forms = System.Windows.Forms;
 using TurnSteamOn.Core;
 using TurnSteamOn.Platform;
@@ -45,7 +46,7 @@ public partial class App : System.Windows.Application
 
 		_trayIcon = new Forms.NotifyIcon
 		{
-			Icon = SystemIcons.Application,
+			Icon = new Icon(Path.Combine(AppContext.BaseDirectory, "Assets", "favicon.ico")),
 			Text = "Turn Steam On",
 			ContextMenuStrip = menu,
 			Visible = true
