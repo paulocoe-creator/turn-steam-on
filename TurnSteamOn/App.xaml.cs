@@ -15,6 +15,7 @@ public partial class App : System.Windows.Application
 	private WindowsDualSenseConnectionMonitor? _controllerMonitor;
 	private SteamStartupCoordinator? _steamCoordinator;
 	private SingleInstanceGuard? _singleInstanceGuard;
+	private WindowsStartupManager? _startupManager;
 
 	protected override void OnStartup(System.Windows.StartupEventArgs e)
 	{
@@ -31,8 +32,33 @@ public partial class App : System.Windows.Application
 		var menu = new Forms.ContextMenuStrip();
 		var statusItem = menu.Items.Add("Waiting for DualSense", null, null);
 		statusItem.Enabled = false;
+		var startupItem = new Forms.ToolStripMenuItem("Run at Windows startup");
 		menu.Items.Add(new Forms.ToolStripSeparator());
+		menu.Items.Add(startupItem);
 		menu.Items.Add("Exit", null, (_, _) => Shutdown());
+
+		try
+		{
+			_startupManager = new WindowsStartupManager();
+			startupItem.Checked = _startupManager.IsEnabled;
+			startupItem.CheckedChanged += (_, _) =>
+			{
+				try
+				{
+					_startupManager.SetEnabled(startupItem.Checked);
+				}
+				catch (Exception exception)
+				{
+					TemporaryLogger.Error("Unable to update Windows startup setting.", exception);
+					startupItem.Checked = !startupItem.Checked;
+				}
+			};
+		}
+		catch (Exception exception)
+		{
+			TemporaryLogger.Error("Unable to read Windows startup setting.", exception);
+			startupItem.Enabled = false;
+		}
 
 		_trayIcon = new Forms.NotifyIcon
 		{
