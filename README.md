@@ -31,3 +31,21 @@ Install Inno Setup and make `iscc.exe` available on `PATH`, then run:
 ```
 
 The script publishes a self-contained `win-x64` build, creates a Start menu shortcut named `Turn Steam On`, and registers the normal Windows uninstaller. The installer does not enable Windows startup automatically; that remains controlled by the tray menu setting.
+
+## Future improvements
+
+Planned features include:
+
+- A settings window that can be opened from the tray menu or Start menu.
+- Device discovery with friendly names, connection state, Bluetooth or USB transport, vendor, product, and stable identifiers.
+- Selecting one or more devices that can trigger Steam.
+- Enabling or disabling selected devices independently.
+- Persisting device selections and user preferences across restarts.
+- Rescanning devices and testing which selected device would trigger Steam.
+- Clear tray states for waiting, connected, launching, running, and error conditions.
+- Pause and resume monitoring without exiting the application.
+- Improved single-instance behavior that focuses the existing background app.
+- Structured logging, log rotation, and clearer Steam launch diagnostics.
+- Automated release builds, installer upgrades, and signed distribution artifacts.
+- Optional per-device launch profiles, configurable delays, Big Picture mode, and specific game launching.
+- Settings import/export, localization, and accessibility improvements.
